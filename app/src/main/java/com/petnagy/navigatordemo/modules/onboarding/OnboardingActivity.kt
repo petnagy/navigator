@@ -1,32 +1,52 @@
 package com.petnagy.navigatordemo.modules.onboarding
 
 import android.os.Bundle
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.petnagy.navigatordemo.R
+import com.petnagy.navigatordemo.databinding.ActivityOnboardingBinding
+import com.petnagy.navigatordemo.event.OnboardingEvent
+import com.petnagy.navigatordemo.modules.onboarding.viewmodel.OnboardingViewModel
+import com.petnagy.navigatordemo.modules.onboarding.viewmodel.OnboardingViewModelFactory
 import com.petnagy.navigatordemo.nav.goToLogin
 import com.petnagy.navigatordemo.nav.goToSignUp
 import dagger.android.support.DaggerAppCompatActivity
-import kotlinx.android.synthetic.main.activity_onboarding.*
-import timber.log.Timber
+import javax.inject.Inject
 
 class OnboardingActivity : DaggerAppCompatActivity() {
 
+    @Inject
+    lateinit var viewModelFactory: OnboardingViewModelFactory
+
+    private lateinit var viewModel: OnboardingViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_onboarding)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(OnboardingViewModel::class.java)
+        val binding: ActivityOnboardingBinding = DataBindingUtil.setContentView(this, R.layout.activity_onboarding)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
 
-        onboarding_login_button.setOnClickListener {
-            Timber.d("Login button pressed")
-            val intent = goToLogin(this)
-            startActivity(intent)
-            finish()
-        }
-
-        onboarding_signup_button.setOnClickListener {
-            Timber.d("Signup button pressed")
-            val intent = goToSignUp(this)
-            startActivity(intent)
-            finish()
-        }
+        viewModel.userEvent.observe(this, Observer { event ->
+            event.getContentIfNotHandled()?.let {
+                when(it) {
+                    OnboardingEvent.LOGIN -> startLogin()
+                    OnboardingEvent.SIGNUP -> startSignUp()
+                }
+            }
+        })
     }
 
+    private fun startLogin() {
+        val intent = goToLogin(this)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun startSignUp() {
+        val intent = goToSignUp(this)
+        startActivity(intent)
+        finish()
+    }
 }

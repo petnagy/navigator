@@ -15,7 +15,7 @@ import dagger.android.ContributesAndroidInjector
 interface ActivityModule {
 
     @PerActivity
-    @ContributesAndroidInjector //(modules = [(MainActivityModule::class)])
+    @ContributesAndroidInjector (modules = [(OnboardingModule::class)])
     fun contributeOnboardingActivity(): OnboardingActivity
 
     @PerActivity
