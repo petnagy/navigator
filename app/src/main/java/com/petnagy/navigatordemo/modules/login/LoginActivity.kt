@@ -1,49 +1,48 @@
 package com.petnagy.navigatordemo.modules.login
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.petnagy.navigatordemo.R
+import com.petnagy.navigatordemo.databinding.ActivityLoginBinding
+import com.petnagy.navigatordemo.event.AppEvents
+import com.petnagy.navigatordemo.modules.login.viewmodel.LoginViewModel
+import com.petnagy.navigatordemo.modules.login.viewmodel.LoginViewModelFactory
 import com.petnagy.navigatordemo.nav.goToDashBoard
-import com.petnagy.navigatordemo.service.PreferenceService
 import dagger.android.support.DaggerAppCompatActivity
-import kotlinx.android.synthetic.main.activity_login.*
-import timber.log.Timber
 import javax.inject.Inject
 
 class LoginActivity : DaggerAppCompatActivity() {
 
     @Inject
-    lateinit var preferenceService: PreferenceService
+    lateinit var viewModelFactory: LoginViewModelFactory
+
+    private lateinit var viewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(LoginViewModel::class.java)
+        val binding: ActivityLoginBinding = DataBindingUtil.setContentView(this, R.layout.activity_login)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
 
-        email_text.addTextChangedListener(object: TextWatcher {
-            override fun afterTextChanged(text: Editable?) {
-                text?.let {
-                    login_button.isEnabled = it.isNotEmpty()
+        viewModel.loginEvent.observe(this, Observer { event ->
+            event.getContentIfNotHandled()?.let {
+                when(it) {
+                    AppEvents.LOGIN_PRESSED -> startLogin()
+                    else -> {
+                        // do nothing
+                    }
                 }
             }
-
-            override fun beforeTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                // do not implement
-            }
-
-            override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                // do not implement
-            }
-
         })
-
-        login_button.setOnClickListener {
-            Timber.d("Login pressed")
-            preferenceService.saveEmail(email_text.text.toString())
-            val intent = goToDashBoard(this)
-            startActivity(intent)
-            finish()
-        }
     }
 
+    private fun startLogin() {
+        val intent = goToDashBoard(this)
+        startActivity(intent)
+        finish()
+    }
 }

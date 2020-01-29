@@ -19,7 +19,7 @@ interface ActivityModule {
     fun contributeOnboardingActivity(): OnboardingActivity
 
     @PerActivity
-    @ContributesAndroidInjector //(modules = [(MainActivityModule::class)])
+    @ContributesAndroidInjector (modules = [(LoginModule::class)])
     fun contributeLoginActivity(): LoginActivity
 
     @PerActivity

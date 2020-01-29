@@ -6,7 +6,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.petnagy.navigatordemo.R
 import com.petnagy.navigatordemo.databinding.ActivityOnboardingBinding
-import com.petnagy.navigatordemo.event.OnboardingEvent
+import com.petnagy.navigatordemo.event.AppEvents
 import com.petnagy.navigatordemo.modules.onboarding.viewmodel.OnboardingViewModel
 import com.petnagy.navigatordemo.modules.onboarding.viewmodel.OnboardingViewModelFactory
 import com.petnagy.navigatordemo.nav.goToLogin
@@ -31,8 +31,8 @@ class OnboardingActivity : DaggerAppCompatActivity() {
         viewModel.userEvent.observe(this, Observer { event ->
             event.getContentIfNotHandled()?.let {
                 when(it) {
-                    OnboardingEvent.LOGIN -> startLogin()
-                    OnboardingEvent.SIGNUP -> startSignUp()
+                    AppEvents.LOGIN_PRESSED -> startLogin()
+                    AppEvents.SIGN_UP_PRESSED -> startSignUp()
                 }
             }
         })
