@@ -1,8 +1,8 @@
-package com.petnagy.navigatordemo.modules.login
+package com.petnagy.navigatordemo.modules.signup.model
 
 import com.petnagy.navigatordemo.service.PreferenceService
 
-class LoginModel(private val preferenceService: PreferenceService) {
+class SignUpModel(private val preferenceService: PreferenceService) {
 
     fun saveEmail(email: String) {
         preferenceService.saveEmail(email)

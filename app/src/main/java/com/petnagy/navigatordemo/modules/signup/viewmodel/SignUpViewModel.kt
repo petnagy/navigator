@@ -1,4 +1,4 @@
-package com.petnagy.navigatordemo.modules.login.viewmodel
+package com.petnagy.navigatordemo.modules.signup.viewmodel
 
 import android.text.Editable
 import android.text.TextWatcher
@@ -7,19 +7,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.petnagy.navigatordemo.event.AppEvents
 import com.petnagy.navigatordemo.event.Event
-import com.petnagy.navigatordemo.modules.login.model.LoginModel
+import com.petnagy.navigatordemo.modules.signup.model.SignUpModel
 import timber.log.Timber
 
-class LoginViewModel(private val loginModel: LoginModel) : ViewModel() {
+class SignUpViewModel(private val model: SignUpModel) : ViewModel() {
 
-    val loginEvent = MutableLiveData<Event<AppEvents>>()
-    val loginButtonEnabled = MutableLiveData<Boolean>(false)
+    val signUpEvent = MutableLiveData<Event<AppEvents>>()
     val email = MutableLiveData<String>("")
+    val signUpButtonEnabled = MutableLiveData<Boolean>(false)
 
     val emailTextWatcher = object : TextWatcher {
         override fun afterTextChanged(text: Editable?) {
             text?.let {
-                loginButtonEnabled.value = it.isNotEmpty()
+                signUpButtonEnabled.value = it.isNotEmpty()
             }
         }
 
@@ -32,9 +32,9 @@ class LoginViewModel(private val loginModel: LoginModel) : ViewModel() {
         }
     }
 
-    fun onLoginClicked(view: View) {
-        Timber.d("Login pressed")
-        loginModel.saveEmail(email.value ?: "")
-        loginEvent.value = Event(AppEvents.LOGIN_PRESSED)
+    fun onSignUpClicked(view: View) {
+        Timber.d("Sing up pressed")
+        model.saveEmail(email.value ?: "")
+        signUpEvent.value = Event(AppEvents.SIGN_UP_PRESSED)
     }
 }

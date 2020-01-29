@@ -20,9 +20,9 @@ interface FragmentModule {
     @ContributesAndroidInjector //(modules = [(HistoryFragmentModule::class)])
     fun contributePreferenceFragment(): PreferenceFragment
 
-    @ContributesAndroidInjector //(modules = [(HistoryFragmentModule::class)])
+    @ContributesAndroidInjector(modules = [(SignUpFragmentModule::class)])
     fun contributeSignupFragment(): SignupFragment
 
-    @ContributesAndroidInjector //(modules = [(HistoryFragmentModule::class)])
-    fun contributeUserNameFragment(): UserDataFragment
+    @ContributesAndroidInjector(modules = [(UserDataFragmentModule::class)])
+    fun contributeUserDataFragment(): UserDataFragment
 }
