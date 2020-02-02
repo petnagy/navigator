@@ -35,7 +35,7 @@ interface ActivityModule {
     fun contributeDashboardData(): DashboardDataActivity
 
     @PerActivity
-    @ContributesAndroidInjector //(modules = [(MainActivityModule::class)])
+    @ContributesAndroidInjector(modules = [(UserDataActivityModule::class)])
     fun contributeUserDataActivity(): UserDataActivity
 
     @PerActivity

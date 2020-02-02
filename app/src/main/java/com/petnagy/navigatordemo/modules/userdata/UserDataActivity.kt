@@ -3,9 +3,16 @@ package com.petnagy.navigatordemo.modules.userdata
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.petnagy.navigatordemo.R
+import com.petnagy.navigatordemo.databinding.ActivityUserDataBinding
+import com.petnagy.navigatordemo.event.AppEvents
+import com.petnagy.navigatordemo.modules.userdata.viewmodel.UserUserDataViewModel
+import com.petnagy.navigatordemo.modules.userdata.viewmodel.UserUserDataViewModelFactory
 import dagger.android.support.DaggerAppCompatActivity
-import kotlinx.android.synthetic.main.activity_user_data.*
+import javax.inject.Inject
 
 class UserDataActivity : DaggerAppCompatActivity() {
 
@@ -13,16 +20,35 @@ class UserDataActivity : DaggerAppCompatActivity() {
         const val USER_NAME_TEXT = "userName"
     }
 
+    @Inject
+    lateinit var viewModelFactory: UserUserDataViewModelFactory
+
+    private lateinit var viewModel: UserUserDataViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_user_data)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(UserUserDataViewModel::class.java)
+        val binding: ActivityUserDataBinding = DataBindingUtil.setContentView(this, R.layout.activity_user_data)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
 
-        user_data_button.setOnClickListener {
-            val data = Intent().apply {
-                putExtra(USER_NAME_TEXT, user_data_value.text.toString())
+        viewModel.userDataEvent.observe(this, Observer { event ->
+            event.getContentIfNotHandled()?.let {
+                when(it) {
+                    AppEvents.ADDED_USER_DATA -> addUserData()
+                    else -> {
+                        // do not implement
+                    }
+                }
             }
-            setResult(Activity.RESULT_OK, data)
-            finish()
+        })
+    }
+
+    private fun addUserData() {
+        val data = Intent().apply {
+            putExtra(USER_NAME_TEXT, viewModel.userData.value ?: "")
         }
+        setResult(Activity.RESULT_OK, data)
+        finish()
     }
 }
