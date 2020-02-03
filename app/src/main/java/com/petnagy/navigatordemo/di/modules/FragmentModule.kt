@@ -11,13 +11,13 @@ import dagger.android.ContributesAndroidInjector
 @Module
 interface FragmentModule {
 
-    @ContributesAndroidInjector //(modules = [(MainActivityModule::class)])
+    @ContributesAndroidInjector(modules = [(DashboardFragmentModule::class)])
     fun contributeDashboardFragment(): DashboardFragment
 
-    @ContributesAndroidInjector //(modules = [(HistoryFragmentModule::class)])
+    @ContributesAndroidInjector(modules = [(ListFragmentModule::class)])
     fun contributeListFragment(): ListFragment
 
-    @ContributesAndroidInjector //(modules = [(HistoryFragmentModule::class)])
+    @ContributesAndroidInjector(modules = [(PreferenceFragmentModule::class)])
     fun contributePreferenceFragment(): PreferenceFragment
 
     @ContributesAndroidInjector(modules = [(SignUpFragmentModule::class)])

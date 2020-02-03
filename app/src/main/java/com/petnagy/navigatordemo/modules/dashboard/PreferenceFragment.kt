@@ -6,20 +6,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.petnagy.navigatordemo.R
+import com.petnagy.navigatordemo.databinding.FragmentPreferenceBinding
+import com.petnagy.navigatordemo.event.AppEvents
+import com.petnagy.navigatordemo.modules.dashboard.viewmodel.PreferenceViewModel
+import com.petnagy.navigatordemo.modules.dashboard.viewmodel.PreferenceViewModelFactory
 import com.petnagy.navigatordemo.modules.userdata.UserDataActivity
 import com.petnagy.navigatordemo.nav.goToOnboarding
 import com.petnagy.navigatordemo.nav.goToUserData
-import com.petnagy.navigatordemo.service.PreferenceService
 import dagger.android.support.DaggerFragment
-import kotlinx.android.synthetic.main.fragment_preference.*
 import timber.log.Timber
 import javax.inject.Inject
 
 class PreferenceFragment : DaggerFragment() {
 
     @Inject
-    lateinit var preferenceService: PreferenceService
+    lateinit var viewModelFactory: PreferenceViewModelFactory
+
+    private lateinit var viewModel: PreferenceViewModel
 
     companion object {
         fun newInstance() = PreferenceFragment()
@@ -27,30 +34,46 @@ class PreferenceFragment : DaggerFragment() {
         private const val USER_DATA_REQUEST_CODE = 235
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(PreferenceViewModel::class.java)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_preference, container, false)
+        val binding: FragmentPreferenceBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_preference, container, false)
+        val view = binding.root
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        pref_email.text = preferenceService.loadEmail()
-        pref_userdata.text = preferenceService.loadUserData()
-
-        pref_add_user_data_button.setOnClickListener {
-            context?.let {
-                val intent = goToUserData(it)
-                startActivityForResult(intent, USER_DATA_REQUEST_CODE)
+        viewModel.preferenceEvent.observe(viewLifecycleOwner, Observer { event ->
+            event.getContentIfNotHandled()?.let {
+                when(it) {
+                    AppEvents.REQUEST_USER_DATA -> requestUserData()
+                    AppEvents.LOGOUT_PRESSED -> logout()
+                    else -> {
+                        // do not implemented
+                    }
+                }
             }
+        })
+    }
+
+    private fun logout() {
+        context?.let {
+            val intent = goToOnboarding(it)
+            activity?.startActivity(intent)
+            activity?.finish()
         }
+    }
 
-        pref_logout.setOnClickListener {
-            preferenceService.clearAll()
-            context?.let {
-                val intent = goToOnboarding(it)
-                activity?.startActivity(intent)
-                activity?.finish()
-            }
+    private fun requestUserData() {
+        context?.let {
+            val intent = goToUserData(it)
+            startActivityForResult(intent, USER_DATA_REQUEST_CODE)
         }
     }
 
@@ -61,8 +84,7 @@ class PreferenceFragment : DaggerFragment() {
             data?.let {
                 Timber.d("There is intent: $it")
                 val userData = it.getStringExtra(UserDataActivity.USER_NAME_TEXT) ?: ""
-                pref_userdata.text = userData
-                preferenceService.saveUserData(userData)
+                viewModel.saveUserData(userData)
             }
         }
     }
