@@ -15,7 +15,7 @@ class SignUpActivity : DaggerAppCompatActivity() {
 
     fun openFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.signup_container, fragment)
-        transaction.commit()
+            .replace(R.id.signup_container, fragment)
+            .commit()
     }
 }
